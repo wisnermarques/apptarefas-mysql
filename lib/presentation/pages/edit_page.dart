@@ -54,8 +54,12 @@ class _EditTarefaPageState extends State<EditTarefaPage> {
         nome: nomeController.text,
         descricao: descricaoController.text,
         status: _status ?? "Pendente", // Usa o status selecionado
-        dataInicio: dataInicioController.text,
-        dataFim: dataFimController.text,
+         dataInicio: DateFormat('dd/MM/yyyy')
+              .parse(dataInicioController.text)
+              .toIso8601String(),
+          dataFim: DateFormat('dd/MM/yyyy')
+              .parse(dataFimController.text)
+              .toIso8601String(),
       );
 
       try {
@@ -80,6 +84,36 @@ class _EditTarefaPageState extends State<EditTarefaPage> {
           );
         }
       }
+    }
+  }
+
+  /// Método para exibir o calendário e formatar a data
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.teal, // Cor de destaque do calendário
+              onPrimary: Colors.white, // Cor do texto nos botões selecionados
+              onSurface: Colors.black, // Cor do texto
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        controller.text =
+            DateFormat('dd/MM/yyyy').format(pickedDate); // Formatação BR
+      });
     }
   }
 
@@ -129,6 +163,7 @@ class _EditTarefaPageState extends State<EditTarefaPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: descricaoController,
+                    maxLines: 5,
                     decoration: InputDecoration(
                       labelText: 'Descrição',
                       labelStyle: TextStyle(color: Colors.teal.shade700),
@@ -183,42 +218,52 @@ class _EditTarefaPageState extends State<EditTarefaPage> {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
-                    controller: dataInicioController,
-                    keyboardType: TextInputType.datetime,
-                    decoration: InputDecoration(
-                      labelText: 'Data de Início',
-                      labelStyle: TextStyle(color: Colors.teal.shade700),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal.shade700),
+                        controller: dataInicioController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Data de Início',
+                          labelStyle: TextStyle(color: Colors.teal.shade700),
+                          border: const OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal.shade700),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: () =>
+                                _selectDate(context, dataInicioController),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor entre com a data de início';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor entre com a data de início';
-                      }
-                      return null;
-                    },
-                  ),
                   const SizedBox(height: 16),
                   TextFormField(
-                    controller: dataFimController,
-                    keyboardType: TextInputType.datetime,
-                    decoration: InputDecoration(
-                      labelText: 'Data de Fim',
-                      labelStyle: TextStyle(color: Colors.teal.shade700),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal.shade700),
+                        controller: dataFimController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Data de Fim',
+                          labelStyle: TextStyle(color: Colors.teal.shade700),
+                          border: const OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal.shade700),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: () =>
+                                _selectDate(context, dataFimController),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor entre com a data de fim';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor entre com a data de fim';
-                      }
-                      return null;
-                    },
-                  ),
                   const SizedBox(height: 30),
                   ElevatedButton.icon(
                     onPressed: saveEdits,

@@ -139,6 +139,7 @@ class _CadastroTarefaState extends State<CadastroTarefa> {
                       // Campo Descrição
                       TextFormField(
                         controller: descricaoController,
+                        maxLines: 5,
                         decoration: InputDecoration(
                           labelText: 'Descrição',
                           labelStyle: TextStyle(color: Colors.teal.shade700),
